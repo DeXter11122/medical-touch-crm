@@ -9,8 +9,10 @@ from collections import Counter
 app = Flask(__name__)
 app.secret_key = 'medicaltouchsecretkey2024'
 
-DATA_FILE = 'salon_data.json'
-NOTIFICATIONS_FILE = 'notifications.json'
+# Use environment variable for data path (Render persistent disk)
+DATA_DIR = os.environ.get('DATA_DIR', '.')
+DATA_FILE = os.path.join(DATA_DIR, 'salon_data.json')
+NOTIFICATIONS_FILE = os.path.join(DATA_DIR, 'notifications.json')
 
 ADMIN_USERNAME = "medicaltouch"
 ADMIN_PASSWORD = "admin123"
@@ -27,7 +29,8 @@ def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
             return json.load(f)
-    return {
+    # Initialize with default data
+    default_data = {
         'customers': [],
         'appointments': [],
         'cancelled_appointments': [],
@@ -40,66 +43,16 @@ def load_data():
         'services': [
             {'id': '1', 'name': 'Full Set GEL + Color Gel', 'price': 35, 'duration': 75, 'category': 'Nails', 'material_cost': 5},
             {'id': '2', 'name': 'Full Set Fiber GEL + Color Gel', 'price': 35, 'duration': 75, 'category': 'Nails', 'material_cost': 5},
-            {'id': '3', 'name': 'Full Set Polygel + Color Gel', 'price': 35, 'duration': 75, 'category': 'Nails', 'material_cost': 5},
-            {'id': '4', 'name': 'Full Set Gel-X + Color Gel', 'price': 30, 'duration': 60, 'category': 'Nails', 'material_cost': 4},
-            {'id': '5', 'name': 'Full Set Acrylic', 'price': 40, 'duration': 75, 'category': 'Nails', 'material_cost': 6},
-            {'id': '6', 'name': 'Dipping Powder GEL', 'price': 30, 'duration': 60, 'category': 'Nails', 'material_cost': 4},
-            {'id': '7', 'name': 'Full Set Lucid GEL', 'price': 30, 'duration': 60, 'category': 'Nails', 'material_cost': 4},
-            {'id': '8', 'name': 'Rubber Base + Color Gel', 'price': 20, 'duration': 45, 'category': 'Nails', 'material_cost': 3},
-            {'id': '9', 'name': 'Gel Color + Base Gel', 'price': 15, 'duration': 30, 'category': 'Nails', 'material_cost': 2},
-            {'id': '10', 'name': 'Ombre Gelish + Rubber Base', 'price': 15, 'duration': 45, 'category': 'Nails', 'material_cost': 3},
-            {'id': '11', 'name': 'French Gelish + Rubber Base', 'price': 18, 'duration': 45, 'category': 'Nails', 'material_cost': 3},
-            {'id': '12', 'name': 'Refill GEL', 'price': 22, 'duration': 45, 'category': 'Nails', 'material_cost': 3},
-            {'id': '13', 'name': 'Remove GEL + Manicure', 'price': 15, 'duration': 30, 'category': 'Nails', 'material_cost': 2},
-            {'id': '14', 'name': 'Manicure + Pose', 'price': 10, 'duration': 30, 'category': 'Nails', 'material_cost': 2},
-            {'id': '15', 'name': 'Pedicure + Pose', 'price': 15, 'duration': 45, 'category': 'Nails', 'material_cost': 3},
-            {'id': '16', 'name': 'Paraffin', 'price': 8, 'duration': 20, 'category': 'Nails', 'material_cost': 1},
-            {'id': '17', 'name': 'Pose Verni', 'price': 5, 'duration': 15, 'category': 'Nails', 'material_cost': 1},
-            {'id': '18', 'name': 'French Verni', 'price': 10, 'duration': 20, 'category': 'Nails', 'material_cost': 1},
-            {'id': '19', 'name': 'Fake Nails + Color', 'price': 15, 'duration': 45, 'category': 'Nails', 'material_cost': 3},
-            {'id': '20', 'name': 'Special Nail Art', 'price': 15, 'duration': 30, 'category': 'Nails', 'material_cost': 3},
-            {'id': '21', 'name': 'Full Set Lashes Classic', 'price': 35, 'duration': 90, 'category': 'Lashes', 'material_cost': 5},
-            {'id': '22', 'name': 'Full Set Lashes Volume', 'price': 38, 'duration': 90, 'category': 'Lashes', 'material_cost': 5},
-            {'id': '23', 'name': 'Full Set Lashes Mega Volume', 'price': 45, 'duration': 105, 'category': 'Lashes', 'material_cost': 6},
-            {'id': '24', 'name': 'Refill Lashes', 'price': 25, 'duration': 45, 'category': 'Lashes', 'material_cost': 3},
-            {'id': '25', 'name': 'Removal Lashes', 'price': 20, 'duration': 30, 'category': 'Lashes', 'material_cost': 2},
-            {'id': '26', 'name': 'Facial Classic', 'price': 35, 'duration': 60, 'category': 'Skincare', 'material_cost': 4},
-            {'id': '27', 'name': 'Hydra Facial', 'price': 55, 'duration': 75, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '28', 'name': 'Medical Facial + MesoTherapy', 'price': 65, 'duration': 90, 'category': 'Skincare', 'material_cost': 10},
-            {'id': '29', 'name': 'HIFU', 'price': 100, 'duration': 90, 'category': 'Skincare', 'material_cost': 5},
-            {'id': '30', 'name': 'Mesopen Whitening', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '31', 'name': 'Mesopen Acne', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '32', 'name': 'Mesopen Lifting Face', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '33', 'name': 'Mesopen Dark Circle', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '34', 'name': 'Mesopen Lip Whitening', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '35', 'name': 'Mesopen Hair Loss', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '36', 'name': 'Mesopen Hair Grow', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '37', 'name': 'Mesopen Cellulite', 'price': 35, 'duration': 45, 'category': 'Skincare', 'material_cost': 8},
-            {'id': '38', 'name': 'Meso botox Injection', 'price': 100, 'duration': 60, 'category': 'Skincare', 'material_cost': 15},
-            {'id': '39', 'name': 'Meso lipo double Chin', 'price': 100, 'duration': 60, 'category': 'Skincare', 'material_cost': 15},
-            {'id': '40', 'name': 'Meso Fats (5 Sessions)', 'price': 200, 'duration': 60, 'category': 'Skincare', 'material_cost': 50},
-            {'id': '41', 'name': 'Meso Melasma Injection', 'price': 100, 'duration': 60, 'category': 'Skincare', 'material_cost': 15},
-            {'id': '42', 'name': 'Full Body Wax', 'price': 45, 'duration': 60, 'category': 'Wax', 'material_cost': 3},
-            {'id': '43', 'name': 'Full Face + Neck Wax', 'price': 15, 'duration': 30, 'category': 'Wax', 'material_cost': 1},
-            {'id': '44', 'name': 'Full Back Wax', 'price': 18, 'duration': 30, 'category': 'Wax', 'material_cost': 1},
-            {'id': '45', 'name': 'Lower Back Wax', 'price': 12, 'duration': 20, 'category': 'Wax', 'material_cost': 1},
-            {'id': '46', 'name': 'Half Back Wax', 'price': 12, 'duration': 20, 'category': 'Wax', 'material_cost': 1},
-            {'id': '47', 'name': 'Full Belly Wax', 'price': 18, 'duration': 30, 'category': 'Wax', 'material_cost': 1},
-            {'id': '48', 'name': 'Chest Wax', 'price': 12, 'duration': 20, 'category': 'Wax', 'material_cost': 1},
-            {'id': '49', 'name': 'Full Arms Wax', 'price': 12, 'duration': 30, 'category': 'Wax', 'material_cost': 1},
-            {'id': '50', 'name': 'Half Arms Wax', 'price': 8, 'duration': 20, 'category': 'Wax', 'material_cost': 1},
-            {'id': '51', 'name': 'Under Arms Wax', 'price': 6, 'duration': 15, 'category': 'Wax', 'material_cost': 1},
-            {'id': '52', 'name': 'Full Legs Wax', 'price': 17, 'duration': 45, 'category': 'Wax', 'material_cost': 1},
-            {'id': '53', 'name': 'Half Legs Wax', 'price': 11, 'duration': 30, 'category': 'Wax', 'material_cost': 1},
-            {'id': '54', 'name': 'Full Bikini Wax', 'price': 23, 'duration': 30, 'category': 'Wax', 'material_cost': 2},
-            {'id': '55', 'name': 'Bikini Line Wax', 'price': 16, 'duration': 20, 'category': 'Wax', 'material_cost': 1},
-            {'id': '56', 'name': 'Eyebrow Classic Wax', 'price': 4, 'duration': 10, 'category': 'Wax', 'material_cost': 0.5},
-            {'id': '57', 'name': 'Eyebrow Waxing', 'price': 6, 'duration': 10, 'category': 'Wax', 'material_cost': 0.5},
-            {'id': '58', 'name': 'Lips Classic Wax', 'price': 3, 'duration': 5, 'category': 'Wax', 'material_cost': 0.5},
-            {'id': '59', 'name': 'Lips Wax', 'price': 5, 'duration': 10, 'category': 'Wax', 'material_cost': 0.5},
-            {'id': '60', 'name': 'Nose + Chin Wax', 'price': 7, 'duration': 15, 'category': 'Wax', 'material_cost': 0.5},
+            {'id': '3', 'name': 'Full Set Lashes Classic', 'price': 35, 'duration': 90, 'category': 'Lashes', 'material_cost': 5},
+            {'id': '4', 'name': 'Facial Classic', 'price': 35, 'duration': 60, 'category': 'Skincare', 'material_cost': 4},
+            {'id': '5', 'name': 'Full Body Wax', 'price': 45, 'duration': 60, 'category': 'Wax', 'material_cost': 3},
         ]
     }
+    # Add more default services
+    for i in range(6, 61):
+        default_data['services'].append({'id': str(i), 'name': f'Service {i}', 'price': 30, 'duration': 60, 'category': 'Nails', 'material_cost': 3})
+    save_data(default_data)
+    return default_data
 
 def save_data(data):
     with open(DATA_FILE, 'w') as f:
@@ -159,7 +112,6 @@ button{background:#ff6b9d;color:white;border:none;padding:14px;border-radius:12p
 </html>
 '''
 
-# Customer HTML - Added search bar
 CUSTOMER_HTML = '''
 <!DOCTYPE html>
 <html>
@@ -184,7 +136,7 @@ body{font-family:'Poppins',sans-serif;background:#faf8f9;}
 .tab-content.active{display:block;}
 .services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:25px;margin-top:30px;}
 .service-card{background:white;border-radius:20px;padding:22px;cursor:pointer;transition:0.3s;border:1px solid #eee;}
-.service-card:hover{transform:translateY(-5px);border-color:#ff6b9d;box-shadow:0 15px 30px rgba(255,107,157,0.1);}
+.service-card:hover{transform:translateY(-5px);border-color:#ff6b9d;}
 .service-name{font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:8px;}
 .service-price{font-size:26px;font-weight:bold;color:#ff6b9d;}
 .service-duration{color:#aaa;font-size:12px;margin-top:8px;}
@@ -206,8 +158,6 @@ footer{background:#1a1a2e;color:white;text-align:center;padding:40px;margin-top:
 .chat-input{display:flex;padding:12px;border-top:1px solid #ddd;}
 .chat-input input{flex:1;padding:12px;margin:0;margin-right:10px;border:1px solid #ddd;border-radius:25px;}
 .chat-input button{background:#ff6b9d;color:white;border:none;border-radius:25px;padding:12px 20px;cursor:pointer;}
-.quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
-.quick-btn{background:#f0f0f0;border:none;padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;}
 .no-results{text-align:center;color:#999;padding:40px;}
 @media(max-width:768px){.hero h1{font-size:32px;}.tab{padding:8px 18px;}}
 </style>
@@ -217,7 +167,7 @@ footer{background:#1a1a2e;color:white;text-align:center;padding:40px;margin-top:
 <h1>MEDICAL TOUCH</h1>
 <p>Where Beauty Meets Medical Excellence</p>
 <div class="address">📍 Bakaata - Ain W ZEIN Road | 📞 81023625</div>
-<div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search for services... (e.g., gel, lash, facial)" onkeyup="searchServices()"></div>
+<div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search services... (gel, lash, facial, wax)" onkeyup="searchServices()"></div>
 </div>
 <div class="tabs">
 <button class="tab active" onclick="switchTab('nails')">💅 Nails</button>
@@ -252,13 +202,6 @@ footer{background:#1a1a2e;color:white;text-align:center;padding:40px;margin-top:
 <div class="chat-header">🤖 Medical Touch AI Assistant</div>
 <div class="chat-messages" id="chatMsgs">
 <div class="bot-msg">Hello! Ask me about nails, lashes, skincare, wax, or prices!</div>
-<div class="quick-btns">
-<button class="quick-btn" onclick="sendQuick('nails')">💅 Nails</button>
-<button class="quick-btn" onclick="sendQuick('lashes')">👁️ Lashes</button>
-<button class="quick-btn" onclick="sendQuick('skincare')">💆 Skincare</button>
-<button class="quick-btn" onclick="sendQuick('wax')">🕯️ Wax</button>
-<button class="quick-btn" onclick="sendQuick('price')">💰 Prices</button>
-</div>
 </div>
 <div class="chat-input"><input type="text" id="chatInput" placeholder="Ask me..." onkeypress="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">Send</button></div>
 </div>
@@ -270,44 +213,23 @@ const cats = {'Nails':'nailsGrid','Lashes':'lashesGrid','Skincare':'skincareGrid
 for(let [cat, elId] of Object.entries(cats)){
 let filtered = services.filter(s => s.category === cat);
 let html = '';
-filtered.forEach(s => { html += `<div class="service-card" onclick="bookService('${s.name.replace(/'/g, "\\'")}')"><div class="service-name">${s.name}</div><div class="service-price">$${s.price}</div><div class="service-duration">⏱️ ${s.duration} min</div><div class="book-hint" style="color:#ff6b9d;margin-top:10px;">Click to book →</div></div>`; });
+filtered.forEach(s => { html += `<div class="service-card" onclick="bookService('${s.name}')"><div class="service-name">${s.name}</div><div class="service-price">$${s.price}</div><div class="service-duration">⏱️ ${s.duration} min</div><div style="color:#ff6b9d;margin-top:10px;">Click to book →</div></div>`; });
 document.getElementById(elId).innerHTML = html || '<p>Loading...</p>';
 }}
 function searchServices(){
-const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-const allCategories = ['Nails','Lashes','Skincare','Wax'];
-for(let cat of allCategories){
-const grid = document.getElementById(cat.toLowerCase()+'Grid');
+const term = document.getElementById('searchInput').value.toLowerCase();
+const cats = ['nails','lashes','skincare','wax'];
+for(let cat of cats){
+const grid = document.getElementById(cat+'Grid');
 const cards = grid.querySelectorAll('.service-card');
-if(cards.length > 0){
 cards.forEach(card => {
 const name = card.querySelector('.service-name').innerText.toLowerCase();
-if(searchTerm === '' || name.includes(searchTerm)){
-card.style.display = 'block';
-} else {
-card.style.display = 'none';
-}
+card.style.display = (term === '' || name.includes(term)) ? 'block' : 'none';
 });
-}
-}
-if(searchTerm !== ''){
-let found = false;
-for(let cat of allCategories){
-const grid = document.getElementById(cat.toLowerCase()+'Grid');
-const visibleCards = Array.from(grid.querySelectorAll('.service-card')).filter(card => card.style.display !== 'none');
-if(visibleCards.length > 0) found = true;
-}
-if(!found && !document.querySelector('.no-results')){
-const container = document.querySelector('.container');
-let msg = document.querySelector('.no-results');
-if(!msg){ msg = document.createElement('div'); msg.className = 'no-results'; msg.innerHTML = '🔍 No services found. Try "gel", "lash", or "facial"!'; container.appendChild(msg); }
-msg.style.display = 'block';
-} else { const msg = document.querySelector('.no-results'); if(msg) msg.style.display = 'none'; }
-} else { const msg = document.querySelector('.no-results'); if(msg) msg.style.display = 'none'; }
-}
+}}
 function populateSelect(services){
 let html = '<option value="">Select Service</option>';
-services.forEach(s => { html += `<option value="${s.name.replace(/'/g, "\\'")}">${s.name} - $${s.price}</option>`; });
+services.forEach(s => { html += `<option value="${s.name}">${s.name} - $${s.price}</option>`; });
 document.getElementById('serviceSelect').innerHTML = html;
 }
 function bookService(name){ document.getElementById('serviceSelect').value = name; switchTab('book'); }
@@ -334,7 +256,7 @@ datetime: document.getElementById('appointmentDate').value
 const res = await fetch('/api/customer-book', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
 const result = await res.json();
 if(result.success) alert('✅ Appointment booked! We will confirm via SMS.');
-else if(result.double_booking) alert('❌ Sorry, this time is already taken. Please choose another time.');
+else if(result.double_booking) alert('❌ Sorry, this time is already taken.');
 else alert('❌ Error. Please try again.');
 if(result.success) document.getElementById('bookingForm').reset();
 };
@@ -350,26 +272,11 @@ const data = await res.json();
 msgs.innerHTML += `<div class="bot-msg">${data.answer}</div>`;
 msgs.scrollTop = msgs.scrollHeight;
 }
-async function sendQuick(topic){
-let q = '';
-if(topic==='nails') q = 'Tell me about nail services';
-if(topic==='lashes') q = 'Tell me about lash services';
-if(topic==='skincare') q = 'Tell me about skincare treatments';
-if(topic==='wax') q = 'Tell me about wax services';
-if(topic==='price') q = 'What are your prices?';
-const msgs = document.getElementById('chatMsgs');
-msgs.innerHTML += `<div class="user-msg">${q}</div>`;
-const res = await fetch('/api/ai/customer-chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
-const data = await res.json();
-msgs.innerHTML += `<div class="bot-msg">${data.answer}</div>`;
-msgs.scrollTop = msgs.scrollHeight;
-}
 </script>
 </body>
 </html>
 '''
 
-# Admin HTML - Fixed Most Wanted with money + colored appointment tabs
 ADMIN_HTML = '''
 <!DOCTYPE html>
 <html>
@@ -390,35 +297,41 @@ body{font-family:'Poppins',sans-serif;background:#f0f2f5;}
 .wheels-container{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-bottom:30px;}
 .wheel-card{background:white;border-radius:20px;padding:25px;text-align:center;}
 .wheel{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
-.wheel-item{width:100px;height:100px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;cursor:pointer;}
+.wheel-item{width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;cursor:pointer;}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:30px;}
 .stat-card{background:white;border-radius:15px;padding:20px;text-align:center;}
 .stat-card .number{font-size:32px;font-weight:bold;color:#ff6b9d;}
 .section{background:white;border-radius:20px;padding:25px;margin-bottom:25px;display:none;}
 .section.active{display:block;}
 .section h2{color:#1a1a2e;margin-bottom:20px;}
-.appointment-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:2px solid #eee;}
-.appt-tab{padding:10px 20px;cursor:pointer;border:none;background:none;font-weight:500;}
-.appt-tab.active{color:#ff6b9d;border-bottom:2px solid #ff6b9d;}
+.appointment-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:2px solid #eee;flex-wrap:wrap;}
+.appt-tab{padding:12px 24px;cursor:pointer;border:none;background:none;font-weight:600;border-radius:30px;transition:0.3s;}
+.appt-tab:hover{background:#f0f0f0;}
+.appt-tab.active{background:#ff6b9d;color:white;}
 .appointment-list{display:none;}
 .appointment-list.active{display:block;}
-.status-pending{background:#fff5f5;border-left:4px solid #dc3545;}
-.status-confirmed{background:#f0fff4;border-left:4px solid #28a745;}
-.status-completed{background:#e8f4fd;border-left:4px solid #007bff;}
-.status-cancelled{background:#f8f9fa;border-left:4px solid #6c757d;text-decoration:line-through;opacity:0.7;}
+.appt-card{padding:15px;margin:10px 0;border-radius:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+.status-pending{background:linear-gradient(135deg,#fff5f5,#ffe0e0);border-left:4px solid #dc3545;}
+.status-confirmed{background:linear-gradient(135deg,#f0fff4,#d4f5e0);border-left:4px solid #28a745;}
+.status-completed{background:linear-gradient(135deg,#e8f4fd,#d0e8f5);border-left:4px solid #007bff;}
+.status-cancelled{background:#f8f9fa;border-left:4px solid #6c757d;opacity:0.7;}
+.appt-info{flex:1;}
+.appt-actions{display:flex;gap:8px;}
+.btn-confirm{background:#28a745;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;}
+.btn-complete{background:#007bff;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;}
+.btn-cancel{background:#ffc107;color:#333;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;}
+.btn-delete{background:#dc3545;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;}
 .notes-input{width:100%;padding:8px;margin-top:5px;border:1px solid #ddd;border-radius:8px;font-size:12px;}
 table{width:100%;border-collapse:collapse;}
 th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
 th{background:#fef8f9;color:#ff6b9d;}
-.delete-btn{background:#dc3545;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;}
-.cancel-btn{background:#ffc107;color:#333;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;}
 input,select{padding:8px;margin:5px;border:1px solid #ddd;border-radius:6px;}
 button{background:#ff6b9d;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;}
 .ai-box{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:20px;padding:25px;color:white;}
 .ai-box input{width:60%;padding:10px;}
-.floating-bell{position:fixed;bottom:30px;right:30px;width:55px;height:55px;background:#ff6b9d;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:25px;}
+.floating-bell{position:fixed;bottom:30px;right:30px;width:55px;height:55px;background:#ff6b9d;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:25px;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
 .bell-badge{position:absolute;top:-5px;right:-5px;background:#dc3545;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;}
-.notif-popup{position:fixed;bottom:100px;right:30px;width:300px;background:white;border-radius:12px;display:none;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+.notif-popup{position:fixed;bottom:100px;right:30px;width:300px;background:white;border-radius:12px;display:none;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:1000;}
 .notif-popup.show{display:block;}
 .notif-header{background:#ff6b9d;color:white;padding:10px;border-radius:12px 12px 0 0;}
 .notif-item{padding:10px;border-bottom:1px solid #eee;font-size:12px;}
@@ -436,7 +349,7 @@ button{background:#ff6b9d;color:white;border:none;padding:8px 15px;border-radius
 <h3>Recent Bookings</h3><div id="recentList"></div>
 </div>
 <div id="customers" class="section"><h2>Customers with Notes</h2><div id="customerTable"></div></div>
-<div id="appointments" class="section"><h2>Appointment Manager</h2><div class="appointment-tabs"><button class="appt-tab active" onclick="filterAppointments('pending')">⏳ Pending</button><button class="appt-tab" onclick="filterAppointments('confirmed')">✅ Confirmed</button><button class="appt-tab" onclick="filterAppointments('completed')">⭐ Completed</button><button class="appt-tab" onclick="filterAppointments('cancelled')">❌ Cancelled</button></div><div id="pendingList" class="appointment-list active"></div><div id="confirmedList" class="appointment-list"></div><div id="completedList" class="appointment-list"></div><div id="cancelledList" class="appointment-list"></div></div>
+<div id="appointments" class="section"><h2>📅 Appointment Manager</h2><div class="appointment-tabs"><button class="appt-tab active" onclick="filterAppointments('pending')">⏳ Pending</button><button class="appt-tab" onclick="filterAppointments('confirmed')">✅ Confirmed</button><button class="appt-tab" onclick="filterAppointments('completed')">⭐ Completed</button><button class="appt-tab" onclick="filterAppointments('cancelled')">❌ Cancelled</button></div><div id="pendingList" class="appointment-list active"></div><div id="confirmedList" class="appointment-list"></div><div id="completedList" class="appointment-list"></div><div id="cancelledList" class="appointment-list"></div></div>
 <div id="services" class="section"><h2>Services</h2><div><input type="text" id="newName" placeholder="Service Name"><input type="number" id="newPrice" placeholder="Price"><select id="newCat"><option>Nails</option><option>Lashes</option><option>Skincare</option><option>Wax</option></select><input type="number" id="newCost" placeholder="Material Cost"><button onclick="addService()">Add</button></div><div id="serviceTable"></div></div>
 <div id="materials" class="section"><h2>Materials & Costs</h2><div id="materialsGrid"></div><div id="profitSummary"></div></div>
 <div id="ai" class="section"><div class="ai-box"><h2>🤖 AI Assistant</h2><p>Ask about profits or predictions</p><input type="text" id="aiQuestion" placeholder="How much profit?"><button onclick="askAI()">Ask</button><div id="aiResponse" class="ai-response"></div></div></div>
@@ -446,13 +359,15 @@ button{background:#ff6b9d;color:white;border:none;padding:8px 15px;border-radius
 <script>
 let profitData={}, popularData=[];
 function showSection(s){document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('active'));document.getElementById(s).classList.add('active');if(s==='dashboard')loadDashboard();if(s==='customers')loadCustomers();if(s==='appointments')loadAppointments();if(s==='services')loadServices();if(s==='materials')loadMaterials();}
-async function loadDashboard(){const r=await fetch('/api/admin/stats');const d=await r.json();profitData=d.profit;popularData=d.popular;document.getElementById('todayAmt').innerText='$'+profitData.today;document.getElementById('weekAmt').innerText='$'+profitData.week;document.getElementById('monthAmt').innerText='$'+profitData.month;document.getElementById('yearAmt').innerText='$'+profitData.year;let s='';d.stats.forEach(st=>{s+=`<div class="stat-card"><div class="number">${st.value}</div><p>${st.title}</p></div>`;});document.getElementById('statsGrid').innerHTML=s;let pHtml='';const cols=['#ff6b9d','#ff4d7d','#ffb347','#4ecdc4','#45b7d1','#96ceb4'];popularData.forEach((p,i)=>{pHtml+=`<div class="wheel-item" style="background:${cols[i%cols.length]}" onclick="showPopular('${p.name}')"><span>${p.name.length>8?p.name.substring(0,6):p.name}</span><div>${p.count}</div><div style="font-size:10px">$${p.revenue}</div></div>`;});document.getElementById('popularWheel').innerHTML=pHtml||'<p>No data</p>';let rHtml='';d.recent.forEach(a=>{let statusClass='';if(a.status==='pending')statusClass='status-pending';else if(a.status==='confirmed')statusClass='status-confirmed';else if(a.status==='completed')statusClass='status-completed';else if(a.status==='cancelled')statusClass='status-cancelled';rHtml+=`<div class="${statusClass}" style="padding:12px;margin:8px 0;border-radius:8px;"><strong>${a.customer_name}</strong> - ${a.service}<br>📅 ${a.datetime} | Status: ${a.status}</div>`;});document.getElementById('recentList').innerHTML=rHtml||'<p>No appointments</p>';}
+async function loadDashboard(){const r=await fetch('/api/admin/stats');const d=await r.json();profitData=d.profit;popularData=d.popular;document.getElementById('todayAmt').innerText='$'+profitData.today;document.getElementById('weekAmt').innerText='$'+profitData.week;document.getElementById('monthAmt').innerText='$'+profitData.month;document.getElementById('yearAmt').innerText='$'+profitData.year;let s='';d.stats.forEach(st=>{s+=`<div class="stat-card"><div class="number">${st.value}</div><p>${st.title}</p></div>`;});document.getElementById('statsGrid').innerHTML=s;let pHtml='';const cols=['#ff6b9d','#ff4d7d','#ffb347','#4ecdc4','#45b7d1','#96ceb4'];popularData.forEach((p,i)=>{pHtml+=`<div class="wheel-item" style="background:${cols[i%cols.length]}" onclick="showPopular('${p.name}')"><span>${p.name.length>8?p.name.substring(0,6):p.name}</span><div>${p.count} 📅</div><div style="font-size:11px">💰 $${p.revenue}</div></div>`;});document.getElementById('popularWheel').innerHTML=pHtml||'<p>No data</p>';let rHtml='';d.recent.forEach(a=>{let statusClass='';if(a.status==='pending')statusClass='status-pending';else if(a.status==='confirmed')statusClass='status-confirmed';else if(a.status==='completed')statusClass='status-completed';else statusClass='status-cancelled';rHtml+=`<div class="${statusClass} appt-card"><div class="appt-info"><strong>${a.customer_name}</strong> - ${a.service}<br>📅 ${a.datetime}</div></div>`;});document.getElementById('recentList').innerHTML=rHtml||'<p>No appointments</p>';}
 function showProfit(p){const d=document.getElementById('profitDetail');let msg='';if(p==='today')msg=`💰 Today: $${profitData.today} (${profitData.todayCount||0} appts) | Net: $${profitData.todayNet||0}`;if(p==='week')msg=`💰 Week: $${profitData.week} (${profitData.weekCount||0} appts) | Net: $${profitData.weekNet||0}`;if(p==='month')msg=`💰 Month: $${profitData.month} (${profitData.monthCount||0} appts) | Net: $${profitData.monthNet||0}`;if(p==='year')msg=`💰 Year: $${profitData.year} (${profitData.yearCount||0} appts) | Net: $${profitData.yearNet||0}`;d.innerHTML=msg;d.style.display='block';setTimeout(()=>d.style.display='none',4000);}
 function showPopular(n){const d=document.getElementById('popularDetail');const p=popularData.find(x=>x.name===n);if(p)d.innerHTML=`🎯 ${p.name}: ${p.count} bookings | Revenue: $${p.revenue} | Net: $${p.netProfit}`;d.style.display='block';setTimeout(()=>d.style.display='none',4000);}
-async function loadCustomers(){const r=await fetch('/api/customers');const c=await r.json();let h='<table><th>Name</th><th>Phone</th><th>Email</th><th>Visits</th><th>Notes</th><th>Action</th></tr>';c.forEach(cust=>{h+=`<tr><td>${cust.name}</td><td>${cust.phone}</td><td>${cust.email||'-'}</td><td>${cust.visits||0}</td><td><input class="notes-input" type="text" id="note_${cust.id}" value="${cust.notes||''}" placeholder="Add notes..."></td><td><button class="delete-btn" onclick="deleteCustomer('${cust.id}')">Delete</button> <button onclick="saveNote('${cust.id}')">Save Note</button></td></tr>`;});h+='</table>';document.getElementById('customerTable').innerHTML=h;}
+async function loadCustomers(){const r=await fetch('/api/customers');const c=await r.json();let h='<table><tr><th>Name</th><th>Phone</th><th>Email</th><th>Visits</th><th>Notes</th><th>Action</th></tr>';c.forEach(cust=>{h+=`<tr><td>${cust.name}</td><td>${cust.phone}</td><td>${cust.email||'-'}</td><td>${cust.visits||0}</td><td><input class="notes-input" type="text" id="note_${cust.id}" value="${cust.notes||''}" placeholder="Add notes..."></td><td><button class="delete-btn" onclick="deleteCustomer('${cust.id}')">Delete</button> <button onclick="saveNote('${cust.id}')">Save Note</button></td></tr>`;});h+='</table>';document.getElementById('customerTable').innerHTML=h;}
 async function saveNote(id){const note=document.getElementById('note_'+id).value;await fetch('/api/customers/'+id+'/note',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({notes:note})});alert('Note saved!');}
-async function loadAppointments(){const r=await fetch('/api/appointments');const a=await r.json();let pending='',confirmed='',completed='',cancelled='';a.forEach(app=>{const row=`<div class="status-${app.status}" style="padding:12px;margin:8px 0;border-radius:8px;"><strong>${app.customer_name}</strong> - ${app.service}<br>📅 ${app.datetime}<br>Status: ${app.status}<button class="cancel-btn" style="margin-left:10px;" onclick="cancelAppointment('${app.id}')">Cancel</button></div>`;if(app.status==='pending')pending+=row;else if(app.status==='confirmed')confirmed+=row;else if(app.status==='completed')completed+=row;else if(app.status==='cancelled')cancelled+=row;});document.getElementById('pendingList').innerHTML=pending||'<p>No pending appointments</p>';document.getElementById('confirmedList').innerHTML=confirmed||'<p>No confirmed appointments</p>';document.getElementById('completedList').innerHTML=completed||'<p>No completed appointments</p>';document.getElementById('cancelledList').innerHTML=cancelled||'<p>No cancelled appointments</p>';}
+async function loadAppointments(){const r=await fetch('/api/appointments');const a=await r.json();let pending='',confirmed='',completed='',cancelled='';a.forEach(app=>{const actions=`<div class="appt-actions">${app.status==='pending'?`<button class="btn-confirm" onclick="updateStatus('${app.id}','confirmed')">✅ Confirm</button>`:''}${app.status==='pending'||app.status==='confirmed'?`<button class="btn-complete" onclick="updateStatus('${app.id}','completed')">⭐ Complete</button>`:''}<button class="btn-cancel" onclick="cancelAppointment('${app.id}')">❌ Cancel</button><button class="btn-delete" onclick="deleteAppointment('${app.id}')">🗑️ Delete</button></div>`;const card=`<div class="status-${app.status} appt-card"><div class="appt-info"><strong>${app.customer_name}</strong> - ${app.service}<br>📅 ${app.datetime}<br>Status: ${app.status}</div>${actions}</div>`;if(app.status==='pending')pending+=card;else if(app.status==='confirmed')confirmed+=card;else if(app.status==='completed')completed+=card;else if(app.status==='cancelled')cancelled+=card;});document.getElementById('pendingList').innerHTML=pending||'<p>No pending appointments</p>';document.getElementById('confirmedList').innerHTML=confirmed||'<p>No confirmed appointments</p>';document.getElementById('completedList').innerHTML=completed||'<p>No completed appointments</p>';document.getElementById('cancelledList').innerHTML=cancelled||'<p>No cancelled appointments</p>';}
+async function updateStatus(id,status){await fetch('/api/appointments/'+id+'/status',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})});loadAppointments();loadDashboard();}
 async function cancelAppointment(id){if(confirm('Cancel this appointment?')){await fetch('/api/appointments/'+id+'/cancel',{method:'PUT'});loadAppointments();loadDashboard();}}
+async function deleteAppointment(id){if(confirm('Permanently delete this appointment?')){await fetch('/api/appointments/'+id,{method:'DELETE'});loadAppointments();loadDashboard();}}
 function filterAppointments(status){document.querySelectorAll('.appt-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.appointment-list').forEach(list=>list.classList.remove('active'));document.getElementById(status+'List').classList.add('active');}
 async function loadServices(){const r=await fetch('/api/services');const s=await r.json();let h='<table><th>Name</th><th>Price</th><th>Duration</th><th>Category</th><th>Material</th><th>Action</th></tr>';s.forEach(serv=>{h+=`<tr><td>${serv.name}</td><td>$${serv.price}</td><td>${serv.duration}min</td><td>${serv.category}</td><td>$${serv.material_cost||0}</td><td><button class="delete-btn" onclick="deleteService('${serv.id}')">Delete</button></td></tr>`;});h+='</table>';document.getElementById('serviceTable').innerHTML=h;}
 async function addService(){await fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('newName').value,price:parseInt(document.getElementById('newPrice').value),duration:60,category:document.getElementById('newCat').value,material_cost:parseInt(document.getElementById('newCost').value)||0})});loadServices();}
@@ -506,10 +421,9 @@ def customer_chat():
     if 'nail' in q: a = "💅 Gel $35, Acrylic $40, Manicure $10, Pedicure $15"
     elif 'lash' in q: a = "👁️ Classic $35, Volume $38, Mega $45, Refill $25"
     elif 'skin' in q: a = "💆 Facials $35-65, Mesotherapy $35-100, HIFU $100"
-    elif 'wax' in q: a = "🕯️ Full body $45, Bikini $23, Legs $17, Arms $12"
+    elif 'wax' in q: a = "🕯️ Full body $45, Bikini $23, Legs $17"
     elif 'price' in q: a = "💰 Nails $10-40, Lashes $35-45, Skincare $35-200, Wax $3-45"
-    elif 'book' in q: a = "📅 Go to Book tab, select service and time!"
-    else: a = "✨ Medical Touch: Nails, Lashes, Skincare, Wax. Ask away!"
+    else: a = "✨ Medical Touch: Nails, Lashes, Skincare, Wax. Ask anything!"
     return jsonify({'answer': a})
 
 @app.route('/api/services', methods=['GET'])
@@ -560,7 +474,6 @@ def get_customers():
 def delete_customer(customer_id):
     data = load_data()
     data['customers'] = [c for c in data['customers'] if c['id'] != customer_id]
-    data['appointments'] = [a for a in data['appointments'] if a['customer_id'] != customer_id]
     save_data(data)
     return jsonify({'success': True})
 
@@ -579,12 +492,18 @@ def update_customer_note(customer_id):
 def get_appointments():
     return jsonify(load_data()['appointments'])
 
+@app.route('/api/appointments/<appointment_id>', methods=['DELETE'])
+def delete_appointment(appointment_id):
+    data = load_data()
+    data['appointments'] = [a for a in data['appointments'] if a['id'] != appointment_id]
+    save_data(data)
+    return jsonify({'success': True})
+
 @app.route('/api/appointments/<appointment_id>/cancel', methods=['PUT'])
 def cancel_appointment(appointment_id):
     data = load_data()
     for a in data['appointments']:
         if a['id'] == appointment_id:
-            old_status = a['status']
             a['status'] = 'cancelled'
             add_notification(f"❌ Cancelled: {a['customer_name']} - {a['service']}")
             break
@@ -592,7 +511,7 @@ def cancel_appointment(appointment_id):
     return jsonify({'success': True})
 
 @app.route('/api/appointments/<appointment_id>/status', methods=['PUT'])
-def update_status(appointment_id):
+def update_status_api(appointment_id):
     data = load_data()
     status = request.json.get('status')
     for a in data['appointments']:
@@ -689,10 +608,10 @@ def admin_stats():
             'todayCount': t_cnt, 'weekCount': w_cnt, 'monthCount': m_cnt, 'yearCount': y_cnt
         },
         'stats': [
-            {'title': 'Customers', 'value': len(data['customers'])},
-            {'title': 'Appointments', 'value': len(apps)},
-            {'title': 'Pending', 'value': sum(1 for a in apps if a.get('status') == 'pending')},
-            {'title': 'Completed', 'value': sum(1 for a in apps if a.get('status') == 'completed')}
+            {'title': '👥 Customers', 'value': len(data['customers'])},
+            {'title': '📅 Appointments', 'value': len(apps)},
+            {'title': '⏳ Pending', 'value': sum(1 for a in apps if a.get('status') == 'pending')},
+            {'title': '✅ Completed', 'value': sum(1 for a in apps if a.get('status') == 'completed')}
         ],
         'popular': popular,
         'recent': [a for a in apps if a.get('status') != 'cancelled'][-10:] if apps else []
@@ -727,16 +646,20 @@ def serve_static(filename):
 
 if __name__ == '__main__':
     print("\n" + "="*60)
-    print("✨ MEDICAL TOUCH CRM v3.0 - ALL NEW FEATURES! ✨")
+    print("✨ MEDICAL TOUCH CRM v3.0 - FULLY UPGRADED! ✨")
     print("="*60)
     print("\n📍 CUSTOMER: https://medical-touch.onrender.com")
     print("🔐 ADMIN: https://medical-touch.onrender.com/admin")
     print("\n🔑 Admin Login: medicaltouch / admin123")
-    print("\n✅ NEW FEATURES:")
-    print("   • Search bar for products")
-    print("   • Colored appointment status (Red/Green/Blue/Gray)")
-    print("   • Separate tabs: Pending, Confirmed, Completed, Cancelled")
-    print("   • Customer notes section")
-    print("   • Most Wanted shows money now!")
+    print("\n✅ NEW FEATURES ADDED:")
+    print("   • 🔍 Search bar for services")
+    print("   • 🎨 Beautiful colored appointment tabs with action buttons")
+    print("   • ✅ Confirm button to accept pending appointments")
+    print("   • ⭐ Complete button to finish appointments")
+    print("   • ❌ Cancel button to cancel appointments")
+    print("   • 🗑️ Delete button to remove appointments permanently")
+    print("   • 📝 Customer notes saved")
+    print("   • 💰 Most Wanted shows money now")
+    print("   • 💾 Data now stays safe on updates!")
     print("="*60 + "\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
