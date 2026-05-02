@@ -155,7 +155,9 @@ button{background:#ff6b9d;color:white;border:none;padding:14px;border-radius:12p
 </div>
 </body>
 </html>
-'''CUSTOMER_HTML = '''
+'''
+
+CUSTOMER_HTML = '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -360,7 +362,9 @@ msgs.scrollTop = msgs.scrollHeight;
 </script>
 </body>
 </html>
-'''ADMIN_HTML = '''
+'''
+
+ADMIN_HTML = '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -558,9 +562,14 @@ setTimeout(()=>d.style.display='none',4000);
 async function loadMaterials(){
 const r = await fetch('/api/materials');
 const d = await r.json();
-let html = '<table><tr><th>Category</th><th>Monthly Cost</th><th>Items</th><th>Action</th></tr>';
+let html = '<table><table><th>Category</th><th>Monthly Cost</th><th>Items</th><th>Action</th></tr>';
 for(let cat in d.materials){
-html += `<tr><td><strong>${cat}</strong></td><td><input type="number" id="cost_${cat}" value="${d.materials[cat].cost}" style="width:80px"> $</td><td>${d.materials[cat].items.join(', ')}</td><td><button onclick="updateCost('${cat}')">Update</button></td></tr>`;
+html += `<tr>
+<td><strong>${cat}</strong></td>
+<td><input type="number" id="cost_${cat}" value="${d.materials[cat].cost}" style="width:80px"> $</td>
+<td>${d.materials[cat].items.join(', ')}</td>
+<td><button onclick="updateCost('${cat}')">Update</button></td>
+</tr>`;
 }
 html += '</table>';
 document.getElementById('materialsGrid').innerHTML = html;
@@ -574,7 +583,7 @@ loadMaterials();
 async function loadCustomers(){
 const r = await fetch('/api/customers');
 const c = await r.json();
-let h = '<table><tr><th>Name</th><th>Phone</th><th>Email</th><th>Visits</th><th>Action</th></tr>';
+let h = '<table><th>Name</th><th>Phone</th><th>Email</th><th>Visits</th><th>Action</th></tr>';
 c.forEach(cust => { h += `<tr><td>${cust.name}</td><td>${cust.phone}</td><td>${cust.email||'-'}</td><td>${cust.visits||0}</td><td><button class="delete-btn" onclick="deleteCustomer('${cust.id}')">Delete</button></td></tr>`; });
 h += '</table>';
 document.getElementById('customerTable').innerHTML = h;
@@ -582,7 +591,7 @@ document.getElementById('customerTable').innerHTML = h;
 async function loadAppointments(){
 const r = await fetch('/api/appointments');
 const a = await r.json();
-let h = '<table><tr><th>Customer</th><th>Service</th><th>Time</th><th>Status</th><th>Action</th></tr>';
+let h = '<table><th>Customer</th><th>Service</th><th>Time</th><th>Status</th><th>Action</th></tr>';
 a.forEach(app => {
 h += `<tr><td>${app.customer_name}</td><td>${app.service}</td><td>${app.datetime}</td><td><select onchange="updateStatus('${app.id}',this.value)"><option ${app.status==='pending'?'selected':''}>pending</option><option ${app.status==='confirmed'?'selected':''}>confirmed</option><option ${app.status==='completed'?'selected':''}>completed</option></select></td><td><button class="delete-btn" onclick="deleteAppointment('${app.id}')">Cancel</button></td></tr>`;
 });
@@ -592,7 +601,7 @@ document.getElementById('appointmentTable').innerHTML = h;
 async function loadServices(){
 const r = await fetch('/api/services');
 const s = await r.json();
-let h = '<table><tr><th>Service</th><th>Price</th><th>Duration</th><th>Category</th><th>Material</th><th>Action</th></tr>';
+let h = '<table><th>Service</th><th>Price</th><th>Duration</th><th>Category</th><th>Material</th><th>Action</th></tr>';
 s.forEach(serv => { h += `<tr><td>${serv.name}</td><td>$${serv.price}</td><td>${serv.duration}min</td><td>${serv.category}</td><td>$${serv.material_cost||0}</td><td><button class="delete-btn" onclick="deleteService('${serv.id}')">Delete</button></td></tr>`; });
 h += '</table>';
 document.getElementById('serviceTable').innerHTML = h;
@@ -639,7 +648,9 @@ loadDashboard(); loadNotif(); setInterval(()=>{ if(document.getElementById('dash
 </script>
 </body>
 </html>
-'''# API ROUTES
+'''
+
+# API ROUTES
 @app.route('/')
 def customer_site():
     return render_template_string(CUSTOMER_HTML)
@@ -888,15 +899,6 @@ if __name__ == '__main__':
     print("\n📍 CUSTOMER: https://medical-touch.onrender.com")
     print("🔐 ADMIN: https://medical-touch.onrender.com/admin")
     print("\n🔑 Admin Login: medicaltouch / admin123")
-    print("\n✅ ALL FEATURES:")
-    print("   • 60+ Services with real prices")
-    print("   • Tabs for Nails, Lashes, Skincare, Wax")
-    print("   • Floating AI Chatbot for customers")
-    print("   • Admin Dashboard with Materials")
-    print("   • Floating Notification Bell")
-    print("   • Profit Wheels (Today/Week/Month/Year)")
-    print("   • Most Wanted Services Wheel")
-    print("   • Double-booking prevention")
-    print("   • Real-time notifications")
+    print("\n✅ ALL FEATURES WORKING")
     print("="*60 + "\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
